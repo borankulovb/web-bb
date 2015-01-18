@@ -1,70 +1,57 @@
 package com.epam.bb.database.Implementation;
 
-import com.epam.bb.database.dao.DaoException;
+import com.epam.bb.database.dao.DaoCommand;
 import com.epam.bb.database.dao.DaoManager;
 
 import java.sql.Connection;
-import java.sql.SQLException;
 
 public class JdbcDaoManager implements DaoManager {
+    protected JdbcDaoUser JdbcDaoUser = null;
     private Connection connection;
 
     public JdbcDaoManager(Connection connection) {
         this.connection = connection;
     }
 
-    @Override
-    public Connection getConnection() {
-        return connection;
-    }
-
     public JdbcDaoUser getUserDao() {
-        return new JdbcDaoUser(connection);
+        if (this.JdbcDaoUser == null) {
+            this.JdbcDaoUser = new JdbcDaoUser(this.connection);
+        }
+        return this.JdbcDaoUser;
     }
 
     @Override
-    public void openTransaction() throws DaoException {
+    public Object executeAndClose(DaoCommand command) throws Exception {
         try {
-            connection.setAutoCommit(false);
-        } catch (SQLException e) {
-            throw new DaoException(e);
+            return command.execute(this);
+        } finally {
+            this.connection.close();
         }
     }
 
     @Override
-    public void closeTransaction() throws DaoException {
+    public Object transaction(DaoCommand command) throws Exception {
         try {
-            connection.setAutoCommit(true);
-        } catch (SQLException e) {
-            throw new DaoException(e);
+            this.connection.setAutoCommit(false);
+            Object returnValue = command.execute(this);
+            this.connection.commit();
+            return returnValue;
+        } catch (Exception e) {
+            this.connection.rollback();
+            throw e; //or wrap it before rethrowing it
+        } finally {
+            this.connection.setAutoCommit(true);
         }
     }
 
     @Override
-    public void commit() throws DaoException {
-        try {
-            connection.commit();
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        }
+    public Object transactionAndClose(final DaoCommand command) throws Exception {
+        executeAndClose(new DaoCommand() {
+            public Object execute(DaoManager manager) throws Exception {
+                manager.transaction(command);
+            }
+        });
     }
 
-    @Override
-    public void rollBack() throws DaoException {
-        try {
-            connection.rollback();
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        }
-    }
-
-    @Override
-    public void close() throws DaoException {
-        try {
-            connection.close();
-        } catch (SQLException e) {
-            throw new DaoException(e);
-        }
-    }
 }
 
