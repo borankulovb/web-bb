@@ -1,9 +1,10 @@
 package com.epam.bb.entity;
 
-public class Manufacturer extends BaseEntity {
+public class Model extends BaseEntity {
     private String name;
 
-    public Manufacturer() {
+    public Model() {
+
     }
 
     public String getName() {
@@ -20,9 +21,9 @@ public class Manufacturer extends BaseEntity {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
 
-        Manufacturer that = (Manufacturer) o;
+        Model model = (Model) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (name != null ? !name.equals(model.name) : model.name != null) return false;
 
         return true;
     }
@@ -36,7 +37,7 @@ public class Manufacturer extends BaseEntity {
 
     @Override
     public String toString() {
-        return "Manufacturer{" +
+        return "Model{" +
                 "name='" + name + '\'' +
                 '}';
     }

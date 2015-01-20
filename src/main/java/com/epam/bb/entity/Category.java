@@ -1,9 +1,13 @@
 package com.epam.bb.entity;
 
-public class Manufacturer extends BaseEntity {
-    private String name;
+public class Category extends BaseEntity {
+    String name;
 
-    public Manufacturer() {
+    public Category() {
+    }
+
+    public Category(String name) {
+        this.name = name;
     }
 
     public String getName() {
@@ -20,9 +24,9 @@ public class Manufacturer extends BaseEntity {
         if (o == null || getClass() != o.getClass()) return false;
         if (!super.equals(o)) return false;
 
-        Manufacturer that = (Manufacturer) o;
+        Category category = (Category) o;
 
-        if (name != null ? !name.equals(that.name) : that.name != null) return false;
+        if (name != null ? !name.equals(category.name) : category.name != null) return false;
 
         return true;
     }
@@ -36,7 +40,7 @@ public class Manufacturer extends BaseEntity {
 
     @Override
     public String toString() {
-        return "Manufacturer{" +
+        return "Category{" +
                 "name='" + name + '\'' +
                 '}';
     }

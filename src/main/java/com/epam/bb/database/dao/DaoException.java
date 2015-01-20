@@ -1,7 +1,6 @@
 package com.epam.bb.database.dao;
 
 public class DaoException extends RuntimeException {
-
     public DaoException() {
     }
 

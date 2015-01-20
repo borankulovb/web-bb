@@ -48,9 +48,10 @@ public class JdbcDaoManager implements DaoManager {
     public Object transactionAndClose(final DaoCommand command) throws Exception {
         executeAndClose(new DaoCommand() {
             public Object execute(DaoManager manager) throws Exception {
-                manager.transaction(command);
+                return manager.transaction(command);
             }
         });
+        return null;
     }
 
 }

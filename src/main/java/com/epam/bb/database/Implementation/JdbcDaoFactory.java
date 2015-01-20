@@ -6,6 +6,7 @@ import com.epam.bb.database.dao.DaoManager;
 import com.epam.bb.database.pool.ConnectionPool;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class JdbcDaoFactory extends DaoFactory {
 
@@ -13,7 +14,7 @@ public class JdbcDaoFactory extends DaoFactory {
         DaoFactory.pool = pool;
     }
 
-    public DaoManager getDaoManager() throws DaoException {
+    public DaoManager getDaoManager() throws DaoException, SQLException, InterruptedException {
         Connection connection;
 
         connection = pool.takeConnection();

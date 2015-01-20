@@ -1,21 +1,13 @@
 package com.epam.bb.database.dao;
 
-import com.epam.bb.database.Implementation.JdbcDaoUser;
-
-import java.sql.Connection;
-
 public interface DaoManager {
-    Connection getConnection() throws DaoException;
 
-    JdbcDaoUser getUserDao() throws DaoException;
+    UserDao getUserDao() throws DaoException;
 
-    public void openTransaction() throws DaoException;
+    public Object executeAndClose(DaoCommand command) throws Exception;
 
-    public void closeTransaction() throws DaoException;
+    public Object transaction(DaoCommand command) throws Exception;
 
-    public void commit() throws DaoException;
+    public Object transactionAndClose(DaoCommand command) throws Exception;
 
-    public void rollBack() throws DaoException;
-
-    public void close() throws DaoException;
 }

@@ -9,6 +9,7 @@ public abstract class DaoFactory {
     protected static ConnectionPool pool;
     private static DaoType daoType;
 
+
     public static JdbcDaoFactory getDaoFactory() {
 
         switch (daoType) {
@@ -29,7 +30,7 @@ public abstract class DaoFactory {
         pool.shutdown();
     }
 
-    public abstract DaoManager getDaoManager() throws DaoException;
+    public abstract DaoManager getDaoManager() throws DaoException, SQLException, InterruptedException;
 
     public static enum DaoType {
         H2

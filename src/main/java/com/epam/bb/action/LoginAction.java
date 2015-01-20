@@ -22,5 +22,6 @@ public class LoginAction implements Action {
         }
         req.setAttribute("login", login);
         return new ActionResult("login");
+
     }
 }

@@ -6,23 +6,26 @@ import org.slf4j.LoggerFactory;
 import java.sql.*;
 import java.util.Map;
 import java.util.Properties;
-import java.util.ResourceBundle;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.Executor;
 
-//todo: Poolsize from Config file
-
 public class ConnectionPool {
-    public static final String PROPERTIES_FILE = "properties/database";
-    public static final int DEFAULT_POOL_SIZE = 10;
+
     private static final Logger log = LoggerFactory.getLogger(ConnectionPool.class);
-    private static ResourceBundle rb = ResourceBundle.getBundle(PROPERTIES_FILE);
-    private static String driver = rb.getString("db.driver");
-    private static String url = rb.getString("db.url");
-    private static String user = rb.getString("db.user");
-    private static String password = rb.getString("db.password");
-    private static String poolSizeStr = rb.getString("db.poolsize");
+
+    private static final String PROPERTY_URL = "url";
+    private static final String PROPERTY_DRIVER = "driver";
+    private static final String PROPERTY_USERNAME = "username";
+    private static final String PROPERTY_PASSWORD = "password";
+    private static final String PROPERTY_POOLSIZE = "poolSize";
+    private static DaoProperties properties = new DaoProperties("h2.jdbc");
+    private static String url = properties.getProperty(PROPERTY_URL);
+    private static String driver = properties.getProperty(PROPERTY_DRIVER);
+    private static String password = properties.getProperty(PROPERTY_PASSWORD);
+    private static String user = properties.getProperty(PROPERTY_USERNAME);
+    private static String poolSizeStr = properties.getProperty(PROPERTY_POOLSIZE);
+    public static final int DEFAULT_POOL_SIZE = 10;
     private static ConnectionPool instance;
     private BlockingQueue<PooledConnection> connectionQueue;
 
@@ -53,11 +56,11 @@ public class ConnectionPool {
             int poolSize = (poolSizeStr != null) ?
                     Integer.parseInt(poolSizeStr) : DEFAULT_POOL_SIZE;
             try {
-                //"Trying to create pool of connections..."/
+                log.info("Trying to create pool of connections...");
                 instance = new ConnectionPool(driver, url, user, password, poolSize);
-                //"Connection pool succesfully initialized"
+                log.info("Connection pool succesfully initialized");
             } catch (ClassNotFoundException e) {
-                //"Driver " + driver + " not found"
+                log.error("Driver " + driver + " not found");
                 throw new RuntimeException(e);
             }
         }
@@ -67,19 +70,16 @@ public class ConnectionPool {
         if (instance != null) {
             instance.clearConnectionQueue();
             instance = null;
-            //"Connection pool succesfully disposed"
+            log.info("Connection pool succesfully disposed");
         }
     }
 
-    public Connection takeConnection() {
+    public Connection takeConnection() throws SQLException, InterruptedException {
         PooledConnection connection = null;
-        try {
-            connection = connectionQueue.take();
-        } catch (InterruptedException e) {
-            //"Free connection waiting interrupted.
-            // Returned `null` connection", e
+        if (connectionQueue.size() == 0) {
+            return newConnection();
         }
-        return connection;
+        return connectionQueue.take();
     }
 
     public void releaseConnection(PooledConnection pooledconnection) {
