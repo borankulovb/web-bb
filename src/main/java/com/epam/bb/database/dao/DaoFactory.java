@@ -5,22 +5,24 @@ import com.epam.bb.database.pool.ConnectionPool;
 
 import java.sql.SQLException;
 
-public abstract class DaoFactory {
+public class DaoFactory {
     protected static ConnectionPool pool;
     private static DaoType daoType;
 
+    public static ConnectionPool getPool() {
+        return pool;
+    }
 
     public static JdbcDaoFactory getDaoFactory() {
 
-        switch (daoType) {
-            case H2:
+
                 return new JdbcDaoFactory(pool);
-            default:
-                return null;
-        }
+
+
     }
 
-    public static void configure(ConnectionPool pool, DaoType daoType) {
+    public static void configure(ConnectionPool pool, DaoType daoType)  {
+
         DaoFactory.pool = pool;
 
         DaoFactory.daoType = daoType;
@@ -30,7 +32,7 @@ public abstract class DaoFactory {
         pool.shutdown();
     }
 
-    public abstract DaoManager getDaoManager() throws DaoException, SQLException, InterruptedException;
+
 
     public static enum DaoType {
         H2

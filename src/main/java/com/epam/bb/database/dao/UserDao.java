@@ -14,4 +14,6 @@ public interface UserDao extends Dao<User> {
 
     User findById(int id) throws DaoException;
 
+    User findByUsernameAndPassword(String username, String password) throws DaoException;
+
 }

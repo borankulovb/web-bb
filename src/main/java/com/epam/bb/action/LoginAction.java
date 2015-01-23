@@ -1,27 +1,54 @@
 package com.epam.bb.action;
 
+import com.epam.bb.database.Implementation.JdbcDaoFactory;
+import com.epam.bb.database.dao.DaoCommand;
+import com.epam.bb.database.dao.DaoFactory;
+import com.epam.bb.database.dao.DaoManager;
 import com.epam.bb.entity.User;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 public class LoginAction implements Action {
+    private ActionResult login = new ActionResult("login");
+    private ActionResult success = new ActionResult("success", true);
+    private final static String USERNAME = "username";
+    private final static String PASSWORD = "password";
+
     @Override
     public ActionResult execute(HttpServletRequest req, HttpServletResponse resp) {
-        String login = req.getParameter("login");
-        String password = req.getParameter("password");
+        final String username = req.getParameter(USERNAME);
+        final String password = req.getParameter(PASSWORD);
+        //TODO: Validation
+        User user = null;
 
-        if ("user".equals(login) && "pass".equals(password)) {
-            User user = new User(login, password); // из Дао получать, искать его по имени и пользователю в базе
-            req.getSession().setAttribute("user", user);
-            Cookie cookie = new Cookie("Locale", "ru");
-            cookie.setMaxAge(500000);
-            resp.addCookie(cookie);
-            return new ActionResult("success", true);
+        JdbcDaoFactory jdbcDaoFactory = DaoFactory.getDaoFactory();
+        try {
+            user = (User) jdbcDaoFactory.getDaoManager().executeAndClose(new DaoCommand() {
+                @Override
+                public Object execute(DaoManager daoManager) throws Exception {
+                    return daoManager.getUserDao().findByUsernameAndPassword(username, password);
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-        req.setAttribute("login", login);
-        return new ActionResult("login");
+
+        if (user == null) {
+            req.setAttribute("loginCheckError", "login.or.password");// second parameter is key in Resourcebundle(WM proj)//TODO with resource bundle
+            return login;
+        }
+
+        HttpSession session = req.getSession();
+        session.setAttribute("user", user);
+
+        return success;
 
     }
 }
+
+
+
+
+

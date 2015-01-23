@@ -29,13 +29,13 @@ public class ConnectionPool {
     private static ConnectionPool instance;
     private BlockingQueue<PooledConnection> connectionQueue;
 
-    public ConnectionPool() throws SQLException {
+    public ConnectionPool() throws PoolException {
         init();
 
     }
 
     private ConnectionPool(String driver, String url, String user, String password, int poolSize)
-            throws ClassNotFoundException {
+            throws ClassNotFoundException, PoolException {
         Class.forName(driver);
         connectionQueue = new ArrayBlockingQueue<PooledConnection>(poolSize);
         for (int i = 0; i < poolSize; i++) {
@@ -43,14 +43,14 @@ public class ConnectionPool {
             try {
                 connection = DriverManager.getConnection(url, user, password);
             } catch (SQLException e) {
-                e.printStackTrace();
+                throw new PoolException(e);
 
             }
             connectionQueue.offer((PooledConnection) connection);
         }
     }
 
-    public static void init() throws SQLException {
+    public static void init() throws PoolException {
         if (instance == null) {
 
             int poolSize = (poolSizeStr != null) ?
@@ -74,15 +74,19 @@ public class ConnectionPool {
         }
     }
 
-    public Connection takeConnection() throws SQLException, InterruptedException {
-        PooledConnection connection = null;
-        if (connectionQueue.size() == 0) {
-            return newConnection();
+    public Connection takeConnection () {
+        Connection connection = null;
+        try {
+            connection = connectionQueue.take ();
+        } catch (InterruptedException e) {
+            //"Free connection waiting interrupted.
+            // Returned `null` connection", e
         }
-        return connectionQueue.take();
+        return connection;
     }
 
-    public void releaseConnection(PooledConnection pooledconnection) {
+
+    public void releaseConnection(PooledConnection pooledconnection)     {
         try {
             if (!pooledconnection.isClosed()) {
                 if (!connectionQueue.offer(pooledconnection)) {
@@ -100,6 +104,7 @@ public class ConnectionPool {
         } catch (SQLException e) {
             //"SQLException at conection isClosed () checking.
             // Connection not added", e
+            throw new PoolException(e);
         }
     }
 

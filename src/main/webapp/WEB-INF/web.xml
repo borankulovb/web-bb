@@ -3,4 +3,37 @@
          xmlns="http://xmlns.jcp.org/xml/ns/javaee"
          xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
          version="3.1">
+
+    <servlet>
+        <servlet-name>Controller</servlet-name>
+        <servlet-class>com.epam.bb.servlet.ControllerServlet</servlet-class>
+    </servlet>
+
+
+    <servlet-mapping>
+        <servlet-name>Controller</servlet-name>
+        <url-pattern>/do/*</url-pattern>
+    </servlet-mapping>
+
+    <session-config>
+        <!--todo: Call Exception or something another on session-timeout-->
+        <session-timeout>2</session-timeout>
+        <cookie-config>
+            <name>s</name>
+        </cookie-config>
+
+    </session-config>
+
+    <servlet>
+        <servlet-name>ErrorHandlerServlet</servlet-name>
+        <servlet-class>com.epam.bb.servlet.ErrorHandlerServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ErrorHandlerServlet</servlet-name>
+        <url-pattern>/error</url-pattern>
+    </servlet-mapping>
+
+    <error-page>
+        <location>/error</location>
+    </error-page>
 </web-app>

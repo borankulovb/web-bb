@@ -21,6 +21,8 @@ public class JdbcDaoUser extends JdbcDao implements UserDao {
     private static final String SQL_FIND_BY_FIRSTNAME = "SELECT id, username, password, phone_number, firstname, lastname, email, role, birthdate, address FROM User WHERE firstname = ?";
     private static final String SQL_FIND_BY_LASTNAME = "SELECT id, username, password, phone_number, firstname, lastname, email, role, birthdate, address FROM User WHERE lastname = ?";
     private static final String SQL_FIND_BY_EMAIL = "SELECT id, username, password, phone_number, firstname, lastname, email, role, birthdate, address FROM User WHERE email = ?";
+    private static final String SQL_FIND_BY_USERNAME_AND_PASSWORD =
+            "SELECT id, email, firstname, lastname, birthdate FROM User WHERE username = ? AND password = ?";
 
     public JdbcDaoUser(Connection connection) {
         super(connection);
@@ -53,6 +55,11 @@ public class JdbcDaoUser extends JdbcDao implements UserDao {
     @Override
     public User findById(int id) throws DaoException {
         return find(SQL_FIND_BY_ID, id);
+    }
+
+    @Override
+    public User findByUsernameAndPassword(String username, String password) throws DaoException {
+        return find(SQL_FIND_BY_USERNAME_AND_PASSWORD, username, password);
     }
 
     @Override

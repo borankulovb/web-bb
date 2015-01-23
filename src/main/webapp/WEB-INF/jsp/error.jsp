@@ -4,6 +4,13 @@
     <title></title>
 </head>
 <body>
-error!!
+
+<h1>Some error has occurred. Please try again later...</h1>
+<%//TODO: read from config status code %>
+<p>Status code ${statusCode}</p>
+
+<p>URL: ${requestUri}</p>
+
 </body>
 </html>
+
